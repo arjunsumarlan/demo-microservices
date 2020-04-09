@@ -6,23 +6,21 @@ const redis = new Redis()
 
 app.use(express.json())
 
+
+
 app.get('/students', async (req, res) => {
-  // Pointing ke student service
   try {
-    // Check ke redis ada ga data students
+
     const data = await redis.get('students')
-    console.log(data)
+
     if (data) {
-      // Kalau ada, ambil data dari redis
-      console.log('disini terjadi')
       res.send(JSON.parse(data))
     } else {
-      // Kalau ga ada, ambil ke database melalui axios
-      console.log('disana terjadi')
       const { data } = await axios.get('http://localhost:3001')
-      redis.set('students', JSON.stringify(data))
+      await redis.set('students', JSON.stringify(data))
       res.send(data)
     }
+
   } catch (err) {
     res.send(err)
   }
@@ -30,31 +28,37 @@ app.get('/students', async (req, res) => {
 
 app.post('/students', async (req, res) => {
   try {
+
     const { data } = await axios.post('http://localhost:3001', req.body)
-    await redis.del('students')
+    const dataAll = await redis.get('students')
+    if (dataAll) {
+      await redis.set('students', JSON.stringify(JSON.parse(dataAll).concat(data.ops[0])))
+    }
+    // else {
+    //   await redis.set('students', JSON.stringify([...data.ops[0]]))
+    // }
+
     res.send(data)
+
   } catch (err) {
     res.send(err)
   }
 })
 
+
 app.get('/instructors', async (req, res) => {
-  // Pointing ke instructor service
   try {
-    // Check ke redis ada ga data instructor
+
     const data = await redis.get('instructors')
-    console.log(data)
+
     if (data) {
-      // Kalau ada, ambil data dari redis
-      console.log('disini terjadi')
       res.send(JSON.parse(data))
     } else {
-      // Kalau ga ada, ambil ke database melalui axios
-      console.log('disana terjadi')
-      const { data } = await axios.get('http://localhost:3001')
-      redis.set('instructors', JSON.stringify(data))
+      const { data } = await axios.get('http://localhost:3002')
+      await redis.set('instructors', JSON.stringify(data))
       res.send(data)
     }
+
   } catch (err) {
     res.send(err)
   }
@@ -62,20 +66,31 @@ app.get('/instructors', async (req, res) => {
 
 app.post('/instructors', async (req, res) => {
   try {
-    const { data } = await axios.post('http://localhost:3001', req.body)
-    await redis.del('instructors')
+
+    const { data } = await axios.post('http://localhost:3002', req.body)
+    const dataAll = await redis.get('instructors')
+    if (dataAll) {
+      await redis.set('instructors', JSON.stringify(JSON.parse(dataAll).concat(data.ops[0])))
+    }
+    // else {
+    //   await redis.set('instructors', JSON.stringify([...data.ops[0]]))
+    // }
+
     res.send(data)
+
   } catch (err) {
     res.send(err)
   }
 })
 
-app.get('/redis', async (req, res) => {
-  await redis.set('batch', 'loyal-fox', 'EX', 10)
-  // const data = await redis.get('batch')
 
-  res.send('berhasil gan')
+
+app.get('/redis', async (req, res) => {
+  await redis.set('batch', 'native-fox', 'EX', 10);
+
+  res.send('berhasil cuyyy')
 })
+
 
 app.listen(3000, () => {
   console.log('App listening on port 3000!')

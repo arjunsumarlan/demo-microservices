@@ -11,6 +11,6 @@
   "dependencies": {
     "axios": "0.19.2",
     "express": "4.17.1",
-    "ioredis": "4.16.0"
+    "ioredis": "^4.16.0"
   }
 }
