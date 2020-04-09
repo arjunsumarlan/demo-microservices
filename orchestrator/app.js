@@ -19,10 +19,52 @@ app.get('/students', async (req, res) => {
     } else {
       // Kalau ga ada, ambil ke database melalui axios
       console.log('disana terjadi')
-      const {data} = await axios.get('http://localhost:3001')
+      const { data } = await axios.get('http://localhost:3001')
       redis.set('students', JSON.stringify(data))
       res.send(data)
     }
+  } catch (err) {
+    res.send(err)
+  }
+})
+
+app.post('/students', async (req, res) => {
+  try {
+    const { data } = await axios.post('http://localhost:3001', req.body)
+    await redis.del('students')
+    res.send(data)
+  } catch (err) {
+    res.send(err)
+  }
+})
+
+app.get('/instructors', async (req, res) => {
+  // Pointing ke instructor service
+  try {
+    // Check ke redis ada ga data instructor
+    const data = await redis.get('instructors')
+    console.log(data)
+    if (data) {
+      // Kalau ada, ambil data dari redis
+      console.log('disini terjadi')
+      res.send(JSON.parse(data))
+    } else {
+      // Kalau ga ada, ambil ke database melalui axios
+      console.log('disana terjadi')
+      const { data } = await axios.get('http://localhost:3001')
+      redis.set('instructors', JSON.stringify(data))
+      res.send(data)
+    }
+  } catch (err) {
+    res.send(err)
+  }
+})
+
+app.post('/instructors', async (req, res) => {
+  try {
+    const { data } = await axios.post('http://localhost:3001', req.body)
+    await redis.del('instructors')
+    res.send(data)
   } catch (err) {
     res.send(err)
   }
@@ -33,16 +75,6 @@ app.get('/redis', async (req, res) => {
   // const data = await redis.get('batch')
 
   res.send('berhasil gan')
-})
-
-app.post('/students', async (req, res) => {
-  try {
-    const {data} = await axios.post('http://localhost:3001', req.body)
-    await redis.del('students')
-    res.send(data)
-  } catch (err) {
-    res.send(err)
-  }
 })
 
 app.listen(3000, () => {

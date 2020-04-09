@@ -21,7 +21,7 @@ app.use(express.json())
 app.get('/', async (req, res) => {
   try {
     const db = req.db
-    const students = await db.collection('students').find({}).toArray()
+    const students = await db.collection('instructors').find({}).toArray()
     res.send(students)
   } catch (err) {
     res.send(err)
@@ -37,11 +37,11 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/', async (req, res) => {
-  const data = await req.db.collection('students').insertOne(req.body)
+  const data = await req.db.collection('instructors').insertOne(req.body)
 
   res.send(data)
 });
 
-app.listen(3001, () => {
-  console.log('App listening on port 3001!');
+app.listen(3000, () => {
+  console.log('App listening on port 3000!');
 });
